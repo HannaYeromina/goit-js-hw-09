@@ -1,13 +1,13 @@
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 
-const date = new Date();
 const startBtn = document.querySelector('button[data-start]');
 const dataDays = document.querySelector('[data-days]');
 const dataHours = document.querySelector('[data-hours]');
 const dataMinutes = document.querySelector('[data-minutes]');
 const dataSeconds = document.querySelector('[data-seconds]');
-let counter = 0;
+let dataSelected = null;
+
 
 
 
@@ -43,32 +43,32 @@ const options = {
     defaultDate: new Date(),
     minuteIncrement: 1,
     onClose(selectedDates) {
-       if(selectedDates[0].getTime() <= date.getTime()) {
+       if(selectedDates[0].getTime() <= new Date().getTime()) {
         window.alert("Please choose a date in the future");
         startBtn.disabled = true;
        } else {
-        startBtn.disabled = false;
-        startBtn.addEventListener( "click", () => {
-          timerId = setInterval( () => {
-            
-            counter = selectedDates[0].getTime() - date.getTime();
-            //  for (let i = 0; i >= 0; i += 1000) {
-            //   counter -= i;
-            //   console.log(counter);
-            //  }
-            
-            
-           
-            dataDays.textContent = `${convertMs(counter).days}`.padStart(2, '0');
-            dataHours .textContent = `${convertMs(counter).hours}`.padStart(2, '0');
-            dataMinutes.textContent = `${convertMs(counter).minutes}`.padStart(2, '0');
-            dataSeconds.textContent = `${convertMs(counter).seconds}`.padStart(2, '0');
-           
-          }, 1000);
-        });
+         startBtn.disabled = false;
+         dataSelected = selectedDates[0].getTime();
        }   
     },
-  };
+};
+  
+startBtn.addEventListener("click", () => {
+  if (dataSelected) {
+    timerId = setInterval(() => { 
+      if (dataSelected > new Date().getTime()) {
+        const counter = convertMs(dataSelected - new Date().getTime())
+        console.log(counter);
+        dataDays.textContent = `${counter.days}`.padStart(2, '0');
+        dataHours.textContent = `${counter.hours}`.padStart(2, '0');
+        dataMinutes.textContent = `${counter.minutes}`.padStart(2, '0');
+        dataSeconds.textContent = `${counter.seconds}`.padStart(2, '0');
+      } else {
+        clearInterval(timerId);
+      }  
+    }, 1000);
+  }
+});
 
   flatpickr("input#datetime-picker", options);
 
